@@ -17,7 +17,10 @@ namespace SubModifier
     {
         private string _suportedFilesExtentions;
         private SubtitleManager _subtitleManager = new SubtitleManager();
-        private readonly ResourceManager _resourceManager = new ResourceManager("SubModifier.MainForm", typeof(MainForm).Assembly);
+
+        private readonly ResourceManager _resourceManager =
+            new ResourceManager("SubModifier.MainForm", typeof(MainForm).Assembly);
+
         private List<Subtitle> _subtitles;
 
         public BindingList<Info> Data { get; }
@@ -37,6 +40,7 @@ namespace SubModifier
                         builder.Append(extension);
                         builder.Append(";");
                     }
+
                     builder.Remove(builder.Length - 1, 1);
                     _suportedFilesExtentions = builder.ToString();
                 }
@@ -48,7 +52,6 @@ namespace SubModifier
         public MainForm()
         {
             Data = new BindingList<Info>();
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("es");
             InitializeComponent();
 
             subtitles_DataGridView.AllowUserToAddRows = false;
@@ -64,11 +67,11 @@ namespace SubModifier
                     break;
                 case "es":
                     Thread.CurrentThread.CurrentUICulture = new CultureInfo("es");
-                    Refresh();
+                    InitializeComponent();
                     break;
                 default:
                     Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
-                    Refresh();
+                    InitializeComponent();
                     break;
             }
         }
@@ -76,7 +79,7 @@ namespace SubModifier
         private void fileOpenSubtitle_ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string filterText = _resourceManager.GetString(Utils.Resources.ResourceKeys.OpenSubtitleFileDialogTitle);
-            
+
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
                 // ReSharper disable once LocalizableElement
@@ -87,7 +90,7 @@ namespace SubModifier
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 Subtitle subtitle = new Subtitle(openFileDialog.FileName);
-                UpdateGrid(new List<Subtitle>{subtitle});
+                UpdateGrid(new List<Subtitle> {subtitle});
                 //_subtitleManager.TransformSubtitle(subtitle);
             }
         }
@@ -95,20 +98,24 @@ namespace SubModifier
         private void englishToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SwitchLanguage("en");
+            UpdateGrid(_subtitles);
         }
 
         private void espanolToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SwitchLanguage("es");
+            UpdateGrid(_subtitles);
         }
 
 
         private void UpdateGrid(List<Subtitle> subtitles)
         {
-            _subtitles = subtitles;
+            _subtitles = subtitles ?? new List<Subtitle>();
+
+            subtitles_DataGridView.Rows.Clear();
             Data.Clear();
-            bool showSuccess = false; 
-            foreach (var subtitle in subtitles)
+            bool showSuccess = false;
+            foreach (var subtitle in _subtitles)
             {
                 Data.Add(new Info
                 {
@@ -139,11 +146,11 @@ namespace SubModifier
                         int lockSpace = 3;
                         int scrollSpace = showScroll ? 18 : 0;
                         column.Width = subtitles_DataGridView.Width - extraSpace - lockSpace - scrollSpace;
-                        column.Visible = true;
+                        column.Visible = Data.Count > 0;
                         break;
                     case "Transform":
                         column.Width = 56;
-                        column.Visible = true;
+                        column.Visible = Data.Count > 0;
                         break;
                     case "Success":
                         column.Width = 56;
@@ -151,11 +158,6 @@ namespace SubModifier
                         break;
                 }
                 column.Resizable = DataGridViewTriState.False;
-            }
-
-            if (Data?.Count > 0)
-            {
-                subtitles_DataGridView.FirstDisplayedScrollingRowIndex = Data.Count - 1;//This will keep the last added row visible with vertical scrollbar being at bottom.
             }
         }
 
@@ -209,6 +211,7 @@ namespace SubModifier
                         subtitle.Transform = info.Transform;
                     }
                 }
+
                 _subtitleManager.TransformSubtitles(_subtitles.ToList());
                 UpdateGrid(_subtitles);
             }

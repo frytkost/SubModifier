@@ -32,6 +32,7 @@ namespace SubModifier
         /// </summary>
         private void InitializeComponent()
         {
+            this.Controls.Clear();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.file_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -106,10 +107,13 @@ namespace SubModifier
             // 
             // subtitles_DataGridView
             // 
+            this.subtitles_DataGridView.AllowUserToAddRows = false;
+            this.subtitles_DataGridView.AllowUserToDeleteRows = false;
             this.subtitles_DataGridView.BackgroundColor = System.Drawing.SystemColors.Control;
             this.subtitles_DataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             resources.ApplyResources(this.subtitles_DataGridView, "subtitles_DataGridView");
             this.subtitles_DataGridView.Name = "subtitles_DataGridView";
+            this.subtitles_DataGridView.ReadOnly = true;
             this.subtitles_DataGridView.RowHeadersVisible = false;
             this.subtitles_DataGridView.RowTemplate.Height = 24;
             // 
